@@ -112,8 +112,8 @@ if [ -z "${ostype}" ] ; then
   exit 1
 fi
 
-node1=$(get_nodes_disk | sort -n -k2 | head -n1 | awk '{print $1}')
-node2=$(get_nodes_disk | sort -n -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
+node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
+node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
 #node1=$(get_nodes | sort -n -k2 | head -n1 | awk '{print $1}')
 #node2=$(get_nodes | sort -n -k3 | grep -v "${node1}" | head -n1 | awk '{print $1}')
 #node1=g0-n00
