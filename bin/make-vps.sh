@@ -156,8 +156,14 @@ gnt-instance add \
 
 echo "INFO: Instance created"
 
-if [ "${shares}" -ge 4 ] ; then
-  echo "INFO: Adding second CPU"
+if [ "${shares}" -ge 7 ] ; then
+  echo "INFO: Adding 4 CPUs"
+  gnt-instance modify -B vcpus=4 "${target_name}"
+elif [ "${shares}" -ge 5 ] ; then
+  echo "INFO: Adding 3 CPUs"
+  gnt-instance modify -B vcpus=3 "${target_name}"
+elif [ "${shares}" -ge 3 ] ; then
+  echo "INFO: Adding 2 CPUs"
   gnt-instance modify -B vcpus=2 "${target_name}"
 fi
 
