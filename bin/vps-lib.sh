@@ -37,6 +37,7 @@ vlan_info() {
   host=$(echo "${ip}" | cut -f4 -d'.')
 
   case ${subnet} in
+    # MSP01
     204.246.122)
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
         vlan="virbr0"
@@ -54,6 +55,25 @@ vlan_info() {
         vlan="virbr1007"
         netmask="255.255.255.192"
         gateway="204.246.122.190"
+      else
+        echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
+        return 1
+      fi
+    ;;
+    # MTV01
+    66.109.99)
+      if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
+        vlan="virbr3001"
+        netmask="255.255.255.128"
+        gateway="66.109.99.126"
+      elif [ "${host}" -ge 161 -a "${host}" -le 173 ] ; then
+        vlan="virbr3004"
+        netmask="255.255.255.240"
+        gateway="66.109.99.174"
+      elif [ "${host}" -ge 177 -a "${host}" -le 253 ] ; then
+        vlan="virbr3005"
+        netmask="255.255.255.192"
+        gateway="66.109.99.254"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
         return 1
