@@ -21,7 +21,7 @@ timeout=120
 down=1
 n=0
 while [ ${down} -ne 0 ] ; do
-  echo "Netowrk test $(date)"
+  echo "Network test $(date)"
   ping -q -n -c 1 "${PROXY_IP}" > /dev/null
   down=$?
   sleep 1

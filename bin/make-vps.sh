@@ -13,6 +13,9 @@ SHARE_DISK_SIZE=25
 # Get a list of available OS images from ganeti
 os_list=$(gnt-os list | tail -n+2 | xargs)
 
+# Get a list of available nodes
+node_list="$(gnt-node list --no-headers --output=name | xargs)"
+
 if [ -z "${os_list}" ] ; then
   exit 1
 fi
@@ -23,20 +26,22 @@ usage $(basename $0) -h [-a] -n <hostname> -s <size> -o <ostype> [-d <extra_disk
   -a    Add only, don't startup and tweak
   -d    Optional: Extra disk shares of size ${SHARE_DISK_SIZE}G
   -n    The hostname for the instance (must resolve)
-  -s    Number of shares (1-8) ${SHARE_RAM_SIZE}G ram / ${SHARE_DISK_SIZE}G disk
   -o    OS Type (${os_list})
+  -p    Primary Node (${node_list})
+  -s    Number of shares (1-8) ${SHARE_RAM_SIZE}G ram / ${SHARE_DISK_SIZE}G disk
 USAGE
 }
 
 declare -i OPTIND=1 help=0 shares=1 extra_disk=0 add_only=0
-declare opt="" optarg="" target_name="" ostype="debootstrap+default"
-while getopts 'ad:hn:o:s:' opt ; do
+declare opt="" optarg="" target_name="" ostype="debootstrap+default" node1=""
+while getopts 'ad:hn:o:p:s:' opt ; do
   case ${opt} in
     a) add_only=1 ;;
     d) extra_disk="${OPTARG}" ;;
     h) help=1 ;;
     n) target_name="${OPTARG}" ;;
     o) ostype="${OPTARG}" ;;
+    p) node1="${OPTARG}" ;;
     s) shares="${OPTARG}" ;;
     *)
       echo "ERROR: unrecognized flag '${opt}'"
@@ -112,7 +117,9 @@ if [ -z "${ostype}" ] ; then
   exit 1
 fi
 
-node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
+if [ -z "${node1}" ] ; then
+  node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
+fi
 node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
 #node1=$(get_nodes | sort -n -k2 | head -n1 | awk '{print $1}')
 #node2=$(get_nodes | sort -n -k3 | grep -v "${node1}" | head -n1 | awk '{print $1}')
