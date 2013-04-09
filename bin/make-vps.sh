@@ -14,7 +14,7 @@ SHARE_DISK_SIZE=25
 os_list=$(gnt-os list | tail -n+2 | xargs)
 
 # Get a list of available nodes
-node_list="$(gnt-node list --no-headers --output=name | xargs)"
+node_list="$(get_nodes | xargs)"
 
 if [ -z "${os_list}" ] ; then
   exit 1
@@ -121,8 +121,6 @@ if [ -z "${node1}" ] ; then
   node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
 fi
 node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
-#node1=$(get_nodes | sort -n -k2 | head -n1 | awk '{print $1}')
-#node2=$(get_nodes | sort -n -k3 | grep -v "${node1}" | head -n1 | awk '{print $1}')
 #node1=g0-n00
 #node2=g0-n02
 

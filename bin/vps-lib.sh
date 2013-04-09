@@ -24,7 +24,7 @@ get_instance_info() {
 }
 
 get_nodes() {
-  gnt-node list --no-headers | awk '{print $1" "$7" "$8}' | sed 's/\.[a-z.]* / /'
+  gnt-node list --no-headers --output="name"
 }
 
 get_nodes_disk() {

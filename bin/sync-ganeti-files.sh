@@ -4,7 +4,7 @@
 #
 # Sync a bunch of stuff to the ganeti nodes.
 
-node_list="g0-n00 g0-n01 g0-n02"
+node_list="$(get_nodes | xargs)"
 me=$(hostname -s)
 
 dir_list="/etc/ganeti/ /root/make-vps/ /root/debs/ /home/vmconsole/.ssh/ /var/cache/ganeti-instance-image/"
