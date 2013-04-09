@@ -4,6 +4,8 @@
 #
 # Sync a bunch of stuff to the ganeti nodes.
 
+source /root/make-vps/bin/vps-lib.sh
+
 node_list="$(get_nodes | xargs)"
 me=$(hostname -s)
 
