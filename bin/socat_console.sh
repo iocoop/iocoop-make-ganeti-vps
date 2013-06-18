@@ -10,8 +10,10 @@ usage() {
 }
 
 if [ -n "${SSH_ORIGINAL_COMMAND}" ] ; then
+  echo "INFO: Original command"
   instance_name="${SSH_ORIGINAL_COMMAND}"
 else
+  echo "INFO: No original command"
   instance_name="$1"
 fi
 

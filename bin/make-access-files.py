@@ -96,18 +96,22 @@ for filename in instance_list:
   instance_info = json.loads(GetNode(filename))
   network_port = str(instance_info['network_port'])
   # print " %s:%s" % (filename, network_port)
-  for line in open(keydir+filename, 'r'):
-    keyline = line.rstrip('\n').split(' ')
-    if not keyline[2] in auth_users:
-      auth_users[keyline[2]] = { 'sshkey': (keyline[0], keyline[1]) }
-    else:
-      print "Warning: already found key for %s" % keyline[2]
-    if not 'ports' in auth_users[keyline[2]]:
-      auth_users[keyline[2]]['ports'] = []
-    auth_users[keyline[2]]['ports'].append(network_port)
-    if not keyline[2] in user_instances:
-      user_instances[keyline[2]] = []
-    user_instances[keyline[2]].append(filename)
+  try:
+    with open(keydir+filename, 'r') as keyfile:
+      for line in keyfile:
+        keyline = line.rstrip('\n').split(' ')
+        if not keyline[2] in auth_users:
+          auth_users[keyline[2]] = { 'sshkey': (keyline[0], keyline[1]) }
+        else:
+          print "Warning: already found key for %s" % keyline[2]
+        if not 'ports' in auth_users[keyline[2]]:
+          auth_users[keyline[2]]['ports'] = []
+        auth_users[keyline[2]]['ports'].append(network_port)
+        if not keyline[2] in user_instances:
+          user_instances[keyline[2]] = []
+        user_instances[keyline[2]].append(filename)
+  except IOError:
+    print "Couldn't find key file (" + keydir + filename + ") for instance. Skipping"
 
 authkey_file = open(outdir+'authorized_keys', 'w')
 

@@ -7,7 +7,7 @@
 source /root/make-vps/bin/vps-lib.sh
 
 node_list="$(get_nodes | xargs)"
-me=$(hostname -s)
+me=$(hostname -f)
 
 dir_list="/etc/ganeti/ /root/make-vps/ /root/debs/ /home/vmconsole/.ssh/ /var/cache/ganeti-instance-image/"
 file_list="/etc/hosts /etc/sudoers /etc/default/ganeti-instance-debootstrap /etc/default/ganeti-instance-image"
