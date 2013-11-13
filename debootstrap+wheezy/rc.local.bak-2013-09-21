@@ -12,7 +12,7 @@ fi
 logger "Starting first boot package fixes"
 
 export PROXY_IP="204.246.122.1"
-export PKG_LIST="ubuntu-standard ssh openssl-blacklist openssl-blacklist-extra"
+export PKG_LIST="acpi-support-base ssh openssl-blacklist openssl-blacklist-extra"
 export DEBIAN_FRONTEND="noninteractive"
 export http_proxy="http://${PROXY_IP}:8000"
 
@@ -36,15 +36,13 @@ done | tee /var/log/rc-local-update
 {
   echo "INFO: Updating package list"
   apt-get update
-  echo "INFO: Setting up squid-deb-proxy-client"
-  apt-get -y install squid-deb-proxy-client
   echo "INFO: Updating installed packages"
   apt-get -y dist-upgrade
   echo "INFO: Installing extra packages ${PKG_LIST}"
   apt-get -y install ${PKG_LIST}
 } | tee -a /var/log/rc-local-update
 
-dpkg -l squid-deb-proxy-client > /dev/null
+dpkg -l ssh > /dev/null
 if [ $? -ne 0 ] ; then
   echo "ERROR: package setup didn't work"
   exit 0
@@ -64,7 +62,7 @@ apt-get -y install grub-pc
 
 # Preseed answers for unattended-upgrades
 debconf-set-selections << 'UPGRADES'
-unattended-upgrades unattended-upgrades/enable_auto_updates boolean true
+unattended-upgrades/enable_auto_updates boolean true
 UPGRADES
 
 apt-get -y install unattended-upgrades
@@ -76,7 +74,7 @@ GRUB_SERIAL_COMMAND="serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1
 GRUBDEFAULT
 
 # Install a shiny linux image
-apt-get -y install linux-image-generic
+apt-get -t squeeze-backports -y install linux-image-amd64
 
 # Enable virtio random module
 echo "virtio-rng" >> "${target}/etc/modules"
