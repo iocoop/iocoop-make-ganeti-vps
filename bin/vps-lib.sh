@@ -28,7 +28,7 @@ get_nodes() {
 }
 
 get_nodes_disk() {
-  gnt-node list --no-headers --output="name,dfree" | sed 's/\.[a-z.]* / / ; s/G$//'
+  gnt-node list --no-headers --units=m --output="name,dfree" | sed 's/\.[a-z.]* / /'
 }
 
 vlan_info() {
