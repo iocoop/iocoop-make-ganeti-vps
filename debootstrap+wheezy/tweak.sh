@@ -11,7 +11,7 @@ fi
 
 logger "Starting first boot package fixes"
 
-export PROXY_IP="66.109.99.162"
+export PROXY_IP="204.246.122.1"
 export PKG_LIST="acpi-support-base ssh openssl-blacklist openssl-blacklist-extra"
 export DEBIAN_FRONTEND="noninteractive"
 export http_proxy="http://${PROXY_IP}:8000"
