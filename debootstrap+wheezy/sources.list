@@ -13,7 +13,7 @@ deb http://ftp.us.debian.org/debian/ wheezy-updates main contrib non-free
 deb-src http://ftp.us.debian.org/debian/ wheezy-updates main contrib non-free
 
 ## Backports
-deb http://backports.debian.org/debian-backports wheezy-backports main contrib non-free
+deb http://ftp.us.debian.org/debian/ wheezy-backports main contrib non-free
 
 ## Proposed updates
 #deb http://ftp.us.debian.org/debian/ wheezy-proposed-updates main contrib non-free
