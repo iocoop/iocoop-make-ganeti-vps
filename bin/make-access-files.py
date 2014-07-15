@@ -7,6 +7,7 @@ import os
 import time
 import types
 import urllib2
+import json
 
 user_instances = {}
 auth_users = {}
@@ -14,22 +15,21 @@ auth_users = {}
 auth_template = 'no-agent-forwarding,no-port-forwarding,no-user-rc,no-X11-forwarding,'
 keydir = '/root/make-vps/keys/'
 outdir = '/root/vps/'
-authorized_keys_file = outdir + "authorized_keys"
-attributes_py_file = outdir + "attributes.py"
 
-# Override directly or with environment variable GANETI_INSTANCE
-GANETI_INSTANCE = 'cloud.cernio.com:5080'
-if 'GANETI_INSTANCE' in os.environ:
-  GANETI_INSTANCE = os.environ['GANETI_INSTANCE']
+defaults = {'keydir': '/root/make-vps/keys/',
+            'outdir': '/root/vps/',
+            'ganeti_instance': 'g1-cluster.iocoop.org:5080',
+            'ganeti_auth': 'user:password'
+            }
+with open('/etc/make-vps.json') as f:
+    config = dict(defaults.items() + json.load(f))
 
-# Override directly or with environment variable GANETI_AUTH
-GANETI_AUTH = 'fred:cernio'
-if 'GANETI_AUTH' in os.environ:
-  GANETI_AUTH = os.environ['GANETI_AUTH']
+authorized_keys_file = config['outdir'] + "authorized_keys"
+attributes_py_file = config['outdir'] + "attributes.py"
 
 def BaseURL():
   """Base URL for the version 2 Ganeti HTTP API."""
-  return 'https://%s/2' % GANETI_INSTANCE
+  return 'https://%s/2' % config['ganeti_instance']
 
 def GetURL(url):
   """GET request for a URL, returning the response body as a string."""
@@ -100,7 +100,9 @@ for filename in instance_list:
     with open(keydir+filename, 'r') as keyfile:
       for line in keyfile:
         keyline = line.rstrip('\n').split(' ')
-        if not keyline[2] in auth_users:
+        if len(keyline) < 3:
+          pass # non conforming line
+        elif not keyline[2] in auth_users:
           auth_users[keyline[2]] = { 'sshkey': (keyline[0], keyline[1]) }
         else:
           print "Warning: already found key for %s" % keyline[2]
@@ -111,7 +113,7 @@ for filename in instance_list:
           user_instances[keyline[2]] = []
         user_instances[keyline[2]].append(filename)
   except IOError:
-    print "Couldn't find key file (" + keydir + filename + ") for instance. Skipping"
+    print "Couldn't find key file (" + keydir + filename + ") for instance " + filename + ". Skipping"
 
 authkey_file = open(outdir+'authorized_keys', 'w')
 
