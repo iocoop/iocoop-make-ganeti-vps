@@ -128,16 +128,19 @@ fi
 ram_total=$((shares * SHARE_RAM_SIZE))
 disk_total=$(((extra_disk + shares) * SHARE_DISK_SIZE))
 
-echo "INFO: Creating vps"
-echo "Instance name: ${target_name}"
-echo "Shares: ${shares}"
-echo "  * Ram ${ram_total}G"
-echo "  * Disk ${disk_total}G"
-echo "Target IP: ${target_ip}"
-echo "Target vlan: ${target_vlan}"
-echo "Target netmask: ${target_netmask}"
-echo "Target gateway: ${target_gateway}"
-echo "Target OS: ${ostype}"
+cat << NODEINFO
+INFO: Creating vps
+Instance name: ${target_name}
+Shares: ${shares}
+  * Ram ${ram_total}G
+  * Disk ${disk_total}G
+Target IP: ${target_ip}
+Target vlan: ${target_vlan}
+Target netmask: ${target_netmask}
+Target gateway: ${target_gateway}
+Target OS: ${ostype}
+NODEINFO
+
 if [ -n "$node1" ]; then
   echo "Primary Node: ${node1}"
   echo "Secondary Node: ${node2}"
@@ -162,7 +165,12 @@ gnt-instance add \
   --no-wait-for-sync \
   "${target_name}"
 
-echo "INFO: Instance created"
+if [[ $? -eq 0 ]] ; then
+  echo "INFO: Instance created"
+else
+  echo "ERROR: Ganeti failed to create the instance"
+  exit 1
+fi
 
 if [ "${shares}" -ge 7 ] ; then
   echo "INFO: Adding 4 CPUs"
