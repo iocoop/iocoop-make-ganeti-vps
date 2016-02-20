@@ -7,9 +7,6 @@
 # Where to get patchs/files from
 SRC="/root/make-vps"
 
-# URL to get to the API
-API_URL="https://cloud.cernio.com:5080/2"
-
 json_read() {
   file=$1
   var=$2
@@ -40,7 +37,7 @@ vlan_info() {
     # MSP01
     204.246.122)
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
-        vlan="virbr0"
+        vlan="virbr1000"
         netmask="255.255.255.240"
         gateway="204.246.122.14"
       elif [ "${host}" -ge 17 -a "${host}" -le 29 ] ; then
@@ -102,3 +99,6 @@ test_ssh_keyfile() {
     fi
   done < "${file}"
 }
+
+# URL to get to the API
+API_URL="https://`json_read /etc/make-vps.json ganeti_instance`/2"

@@ -9,7 +9,7 @@ source /root/make-vps/bin/vps-lib.sh
 node_list="$(get_nodes | xargs)"
 me=$(hostname -f)
 
-dir_list="/etc/ganeti/ /root/make-vps/ /root/debs/ /home/vmconsole/.ssh/ /var/cache/ganeti-instance-image/"
+dir_list="/etc/ganeti/ /root/make-vps/ /root/debs/ /home/vmconsole/.ssh/ /var/cache/ganeti-instance-image/ /home/iso/"
 file_list="/etc/hosts /etc/sudoers /etc/default/ganeti-instance-debootstrap /etc/default/ganeti-instance-image"
 
 for node in ${node_list} ; do
@@ -31,4 +31,3 @@ done
 #/root/bin/make-access-files.py
 #scp /root/vps/attributes.py betelgeuse-private:/home/vps/bin/attributes.py
 #scp /root/vps/authorized_keys betelgeuse-private:/home/vps/.ssh/authorized_keys
-

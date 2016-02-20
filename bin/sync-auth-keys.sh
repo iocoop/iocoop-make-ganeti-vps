@@ -1,6 +1,9 @@
 #!/bin/bash
 
-/root/bin/make-access-files.py
-scp /root/vps/attributes.py betelgeuse-private:/home/vps/bin/attributes.py
-scp /root/vps/authorized_keys betelgeuse-private:/home/vps/.ssh/authorized_keys
+source /root/make-vps/bin/vps-lib.sh
 
+/root/bin/make-access-files.py
+
+manager="`json_read /etc/make-vps.json manager`"
+scp /root/vps/attributes.py ${manager}:/home/vps/bin/attributes.py
+scp /root/vps/authorized_keys ${manager}:/home/vps/.ssh/authorized_keys

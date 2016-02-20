@@ -117,28 +117,34 @@ if [ -z "${ostype}" ] ; then
   exit 1
 fi
 
-if [ -z "${node1}" ] ; then
-  node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
+if [ "`json_read /etc/make-vps.json balance_on_free_space`" = "true" ]; then
+  if [ -z "${node1}" ] ; then
+    node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
+  fi
+  node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
+  gnt_node_assertion="-n \"${node1}:${node2}\""
 fi
-node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
-#node1=g0-n00
-#node2=g0-n02
 
 ram_total=$((shares * SHARE_RAM_SIZE))
 disk_total=$(((extra_disk + shares) * SHARE_DISK_SIZE))
 
-echo "INFO: Creating vps"
-echo "Instance name: ${target_name}"
-echo "Shares: ${shares}"
-echo "  * Ram ${ram_total}G"
-echo "  * Disk ${disk_total}G"
-echo "Target IP: ${target_ip}"
-echo "Target vlan: ${target_vlan}"
-echo "Target netmask: ${target_netmask}"
-echo "Target gateway: ${target_gateway}"
-echo "Target OS: ${ostype}"
-echo "Primary Node: ${node1}"
-echo "Secondary Node: ${node2}"
+cat << NODEINFO
+INFO: Creating vps
+Instance name: ${target_name}
+Shares: ${shares}
+  * Ram ${ram_total}G
+  * Disk ${disk_total}G
+Target IP: ${target_ip}
+Target vlan: ${target_vlan}
+Target netmask: ${target_netmask}
+Target gateway: ${target_gateway}
+Target OS: ${ostype}
+NODEINFO
+
+if [ -n "$node1" ]; then
+  echo "Primary Node: ${node1}"
+  echo "Secondary Node: ${node2}"
+fi
 
 read -p "Create VPS (y/n)?"
 [ "$REPLY" == "y" ] || exit
@@ -153,13 +159,18 @@ gnt-instance add \
   -s "${disk_total}G" \
   -B memory="${ram_total}G" \
   -H kvm:vnc_bind_address=127.0.0.1 \
-  -n "${node1}:${node2}" \
+  $gnt_node_assertion \
   --net "0:link=${target_vlan}" \
   --no-start \
   --no-wait-for-sync \
   "${target_name}"
 
-echo "INFO: Instance created"
+if [[ $? -eq 0 ]] ; then
+  echo "INFO: Instance created"
+else
+  echo "ERROR: Ganeti failed to create the instance"
+  exit 1
+fi
 
 if [ "${shares}" -ge 7 ] ; then
   echo "INFO: Adding 4 CPUs"
@@ -182,6 +193,10 @@ if [ "${add_only}" -ne 0 ] ; then
   exit
 fi
 
+if [ -z "$node1" ]; then
+  node1="$(gnt-instance list --no-headers -o pnode "${target_name}")"
+fi
+
 ssh "root@${node1}" "/root/bin/tweak-vps.sh -n ${target_name}" 
 
 echo "INFO: Staring VM for the first time."
@@ -201,4 +216,3 @@ echo "INFO: All done, should come back soon"
 
 echo "INFO: Updating access controls"
 /root/bin/sync-auth-keys.sh > /dev/null
-
