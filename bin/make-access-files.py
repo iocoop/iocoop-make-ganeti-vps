@@ -8,6 +8,7 @@ import time
 import types
 import urllib2
 import json
+import base64
 
 user_instances = {}
 auth_users = {}
@@ -24,6 +25,9 @@ defaults = {'keydir': '/root/make-vps/keys/',
 with open('/etc/make-vps.json') as f:
     config = dict(defaults.items() + json.load(f))
 
+# Make sure we base64 encode the password for urllib2
+auth_string = base64.encodestring(config['ganeti_auth']).replace('\n', '')
+
 authorized_keys_file = config['outdir'] + "authorized_keys"
 attributes_py_file = config['outdir'] + "attributes.py"
 
@@ -33,10 +37,12 @@ def BaseURL():
 
 def GetURL(url):
   """GET request for a URL, returning the response body as a string."""
+  request = urllib2.Request(url)
+  request.add_header("Authorization", "Basic %s" % auth_string)
   try:
-    return urllib2.urlopen(url).read()
-  except urllib2.HTTPError as error:
-    raise Error(error)
+    return urllib2.urlopen(request).read()
+  except:
+    raise
 
 def GetInstanceList():
   """Obtain the list of instances."""
