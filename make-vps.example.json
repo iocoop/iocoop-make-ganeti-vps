@@ -1,0 +1,5 @@
+{
+  "ganeti_instance": "localhost:5080",
+  "ganeti_auth": "someuser:somepass",
+  "balance_on_free_space": false
+}

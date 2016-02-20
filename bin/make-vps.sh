@@ -16,7 +16,7 @@ os_list=$(gnt-os list | tail -n+2 | xargs)
 # Get a list of available nodes
 node_list="$(get_nodes | xargs)"
 
-if [ -z "${os_list}" ] ; then
+if [[ -z "${os_list}" ]] ; then
   exit 1
 fi
 
@@ -52,18 +52,18 @@ while getopts 'ad:hn:o:p:s:' opt ; do
 done
 shift $((OPTIND - 1))
 
-if [ "${help}" -eq 1 ] ; then
+if [[ "${help}" -eq 1 ]] ; then
   usage
   exit
 fi
 
-if [ -z "${target_name}" ] ; then
+if [[ -z "${target_name}" ]] ; then
   usage
   exit 1
 fi
  
 target_test=$(gnt-instance list "${target_name}" 2> /dev/null | tail -n+2 | awk '{print $1}')
-if [ -n "${target_test}" ] ; then
+if [[ -n "${target_test}" ]] ; then
   echo "ERROR: '${target_name}' already exists"
   usage
   exit 1
@@ -71,7 +71,7 @@ fi
 
 target_ip=$(getent ahostsv4 "${target_name}" | awk '{print $1}' | head -n1)
 
-if [ -z "${target_ip}" ] ; then
+if [[ -z "${target_ip}" ]] ; then
   echo "ERROR: Invalid hostname '${target_name}'"
   usage
   exit 1
@@ -79,20 +79,20 @@ fi
 
 eval $(vlan_info "${target_ip}")
 
-if [ $? -ne 0 ] ; then
+if [[ $? -ne 0 ]] ; then
   echo "ERROR: Unable to get vlan for ${target_ip}"
   exit 1
 fi
 
 target_keyfile="${SRC}/keys/${target_name}"
-if [ ! -f "${target_keyfile}" ] ; then
+if [[ ! -f "${target_keyfile}" ]] ; then
   echo "ERROR: Invalid target ssh keyfile ${target_keyfile}"
   exit 1
 fi
 
 test_ssh_keyfile "${target_keyfile}" || exit 1
 
-if [ "${shares}" -lt 1 -a "${shares}" -gt 8 ] ; then
+if [[ "${shares}" -lt 1 -a "${shares}" -gt 8 ]] ; then
   echo "ERROR: Invalid number of shares: ${shares}"
   usage
   exit 1
@@ -104,21 +104,21 @@ if [ "${extra_disk}" -lt 0 -a "${extra_disk}" -gt 8 ] ; then
   exit 1
 fi
 
-if [ "${extra_disk}" -gt "${shares}" ] ; then
+if [[ "${extra_disk}" -gt "${shares}" ]] ; then
   echo "ERROR: Extra disk shares must be less than or equal to the primary shares"
   exit 1
 fi
 
 ostype=$(echo ${os_list} | fmt -1 | awk -v "os=${ostype}" '$1 == os')
 
-if [ -z "${ostype}" ] ; then
+if [[ -z "${ostype}" ]] ; then
   echo "ERROR: Invalid ostype"
   usage
   exit 1
 fi
 
-if [ "`json_read /etc/make-vps.json balance_on_free_space`" = "true" ]; then
-  if [ -z "${node1}" ] ; then
+if [[ "$(json_read /etc/make-vps.json balance_on_free_space)" = "true" ]] ; then
+  if [[ -z "${node1}" ]] ; then
     node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
   fi
   node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
@@ -193,11 +193,16 @@ if [ "${add_only}" -ne 0 ] ; then
   exit
 fi
 
-if [ -z "$node1" ]; then
+if [[ -z "${node1}" ]]; then
   node1="$(gnt-instance list --no-headers -o pnode "${target_name}")"
 fi
 
 ssh "root@${node1}" "/root/bin/tweak-vps.sh -n ${target_name}" 
+
+if [[ $? -ne 0 ]] ; then
+  echo "ERROR: Failed to tweak"
+  exit 1
+fi
 
 echo "INFO: Staring VM for the first time."
 
