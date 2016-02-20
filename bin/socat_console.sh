@@ -18,6 +18,7 @@ else
 fi
 
 if [ -z "${instance_name}" ] ; then
+  echo "ERROR: No instance name found"
   usage
   exit 1
 fi
