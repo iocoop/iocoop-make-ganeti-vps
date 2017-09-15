@@ -7,7 +7,7 @@ import os
 import time
 import types
 import urllib2
-import json
+import ssl
 import base64
 
 user_instances = {}
@@ -31,6 +31,8 @@ auth_string = base64.encodestring(config['ganeti_auth']).replace('\n', '')
 authorized_keys_file = config['outdir'] + "authorized_keys"
 attributes_py_file = config['outdir'] + "attributes.py"
 
+context = ssl._create_unverified_context()
+
 def BaseURL():
   """Base URL for the version 2 Ganeti HTTP API."""
   return 'https://%s/2' % config['ganeti_instance']
@@ -40,9 +42,9 @@ def GetURL(url):
   request = urllib2.Request(url)
   request.add_header("Authorization", "Basic %s" % auth_string)
   try:
-    return urllib2.urlopen(request).read()
-  except:
-    raise
+    return urllib2.urlopen(request, context=context).read()
+  except urllib2.HTTPError as error:
+    raise Error(error)
 
 def GetInstanceList():
   """Obtain the list of instances."""
