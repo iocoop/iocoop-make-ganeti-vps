@@ -101,4 +101,6 @@ test_ssh_keyfile() {
 }
 
 # URL to get to the API
-API_URL="https://`json_read /etc/make-vps.json ganeti_instance`/2"
+export GANETI_AUTH="$(json_read /etc/make-vps.json ganeti_auth)"
+API_HOST=`json_read /etc/make-vps.json ganeti_instance`
+API_URL="https://${GANETI_AUTH:+${GANETI_AUTH}@}$API_HOST/2"
