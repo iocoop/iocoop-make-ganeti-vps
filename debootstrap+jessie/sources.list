@@ -1,0 +1,21 @@
+## Debian Wheezy sources.list
+
+## Debian security updates:
+deb http://security.debian.org/ jessie/updates main contrib non-free
+deb-src http://security.debian.org/ jessie/updates main contrib non-free
+
+## Debian.org:
+deb http://http.us.debian.org/debian/ jessie main contrib non-free
+deb-src http://http.us.debian.org/debian/ jessie main contrib non-free
+
+## Updates
+deb http://http.us.debian.org/debian/ jessie-updates main contrib non-free
+deb-src http://http.us.debian.org/debian/ jessie-updates main contrib non-free
+
+## Backports
+deb http://http.us.debian.org/debian/ jessie-backports main contrib non-free
+
+## Proposed updates
+#deb http://ftp.us.debian.org/debian/ wheezy-proposed-updates main contrib non-free
+#deb-src http://ftp.us.debian.org/debian/ wheezy-proposed-updates main contrib non-free
+

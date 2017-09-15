@@ -69,8 +69,8 @@ if [ "${shares}" -lt 1 -a "${shares}" -gt 7 ] ; then
 fi
 
 current_ram=$(gnt-instance info -s "${target_name}" \
-              | egrep '^\s+- memory: .*MiB' \
-              | awk '{print $3}' | sed 's/MiB//' )
+              | grep -A7 'Back-end parameters:' \
+              | awk '$1 == "maxmem:" {print $2}')
 additiona_ram=$((shares * 1024))
 requested_ram=$((current_ram + additiona_ram))
 
