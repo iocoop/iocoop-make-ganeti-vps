@@ -34,9 +34,9 @@ str_len = struct.unpack('>I', data[:int_len])[0] # this should return 7
   #print "ERROR: Unable to base64 decode key type"
   #exit(1)
 
-if str_len != 7:
-  print "ERROR: Invalid key string"
-  exit(1)
+#if str_len != 7:
+#  print "ERROR: Invalid key string"
+#  exit(1)
 
 type_decode = data[int_len:int_len+str_len]
 
