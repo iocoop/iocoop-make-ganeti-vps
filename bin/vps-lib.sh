@@ -57,20 +57,16 @@ vlan_info() {
         return 1
       fi
     ;;
-    # MTV01
-    66.109.99)
+    # SCL01
+    216.252.162)
       if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
         vlan="virbr3001"
         netmask="255.255.255.128"
-        gateway="66.109.99.126"
-      elif [ "${host}" -ge 161 -a "${host}" -le 173 ] ; then
-        vlan="virbr3004"
-        netmask="255.255.255.240"
-        gateway="66.109.99.174"
+        gateway="216.252.162.126"
       elif [ "${host}" -ge 177 -a "${host}" -le 253 ] ; then
         vlan="virbr3005"
         netmask="255.255.255.192"
-        gateway="66.109.99.254"
+        gateway="216.252.162.254"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
         return 1
@@ -101,4 +97,6 @@ test_ssh_keyfile() {
 }
 
 # URL to get to the API
-API_URL="https://`json_read /etc/make-vps.json ganeti_instance`/2"
+export GANETI_AUTH="$(json_read /etc/make-vps.json ganeti_auth)"
+export API_HOST="$(json_read /etc/make-vps.json ganeti_instance)"
+export API_URL="https://${GANETI_AUTH:+${GANETI_AUTH}@}$API_HOST/2"
