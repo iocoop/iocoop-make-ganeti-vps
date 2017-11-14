@@ -4,9 +4,6 @@
 #
 # Add shares to cernio VPS machines
 
-# Where to get patchs/files from
-SRC="/root/make-vps"
-
 # Default sizes for shares in MB
 SHARE_RAM_SIZE=1024
 SHARE_DISK_SIZE=25600
