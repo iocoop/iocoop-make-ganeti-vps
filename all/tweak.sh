@@ -6,13 +6,16 @@
 # Feel free to remove the contents
 
 if [ -f /root/.tweak-completed ] ; then
+  echo 'INFO: First boot tweaks already completed.'
   exit 0
 fi
 
 logger 'Starting first boot package fixes'
 
-export PKG_LIST='ubuntu-standard ssh'
 export DEBIAN_FRONTEND='noninteractive'
+
+echo 'INFO: Network config:'
+ip addr show
 
 # Wait for network to be up
 timeout=60
@@ -73,7 +76,7 @@ GRUB_SERIAL_COMMAND="serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1
 GRUBDEFAULT
 
 # Install a shiny linux image
-apt-get -y install linux-image-generic
+apt-get -y install "${KERNEL_PACKAGE}"
 
 # Enable virtio random module
 echo "virtio-rng" >> "${target}/etc/modules"

@@ -108,11 +108,11 @@ fi
 # Copy in a nice README file
 cp -v "${all_source}/README.txt" "${target}/root/README.txt"
 
+# Copy in the tweak script
+cp -v "${all_source}/tweak.sh" "${target}/root/tweak.sh"
+
 # Copy in an rc.local file to update things
 cp -v "${ostype_source}/rc.local" "${target}/etc/rc.local"
-
-# Copy in an tweak.sh file to update things
-cp -v "${ostype_source}/tweak.sh" "${target}/root/tweak.sh"
 
 # Copy in a valid sources.list file
 if [ -f "${ostype_source}/sources.list" ] ; then

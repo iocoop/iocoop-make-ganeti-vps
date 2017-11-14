@@ -11,6 +11,8 @@ fi
 
 logger "Starting first boot tweak.sh"
 
+export PKG_LIST='ubuntu-standard ssh'
+export KERNEL_PACKAGE='linux-image-generic'
 /root/tweak.sh > /var/log/first-boot-tweak.log 2>&1
 
 if [ $? -eq 0 ] ; then
