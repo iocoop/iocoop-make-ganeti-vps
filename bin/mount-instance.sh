@@ -65,6 +65,7 @@ mount_target() {
   fi
 
   target_dev="/dev/mapper/$(kpartx -av "${instance_disk}" | awk '{print $3}')"
+  sleep 2
   echo "INFO: Attempting to mount '${target_dev}'"
   mount "${target_dev}" "${target}"
 

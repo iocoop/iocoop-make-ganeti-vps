@@ -4,7 +4,7 @@
 #
 # Create cernio VPS machines
 
-source /root/make-vps/bin/vps-lib.sh
+source "$(dirname $0)/vps-lib.sh"
 
 # Default sizes for shares
 SHARE_RAM_SIZE=1
@@ -125,6 +125,12 @@ if [[ "$(json_read /etc/make-vps.json balance_on_free_space)" = "true" ]] ; then
   gnt_node_assertion="-n \"${node1}:${node2}\""
 fi
 
+ganeti_disk_type="$(json_read /etc/make-vps.json ganeti_disk_type)"
+if [[ -z "${ganeti_disk_type}" ]] ; then
+  echo "ERROR: No ganeti_disk_type found in /etc/make-vps.json"
+  exit 1
+fi
+
 ram_total=$((shares * SHARE_RAM_SIZE))
 disk_total=$(((extra_disk + shares) * SHARE_DISK_SIZE))
 
@@ -141,7 +147,7 @@ Target gateway: ${target_gateway}
 Target OS: ${ostype}
 NODEINFO
 
-if [ -n "$node1" ]; then
+if [ -n "${node1}" ]; then
   echo "Primary Node: ${node1}"
   echo "Secondary Node: ${node2}"
 fi
@@ -154,12 +160,12 @@ read -p "Create VPS (y/n)?"
 
 # Create the VM, but don't start it
 gnt-instance add \
-  -t drbd \
+  -t "${ganeti_disk_type}" \
   -o "${ostype}" \
   -s "${disk_total}G" \
   -B memory="${ram_total}G" \
   -H kvm:vnc_bind_address=127.0.0.1 \
-  $gnt_node_assertion \
+  ${gnt_node_assertion} \
   --net "0:link=${target_vlan}" \
   --no-start \
   --no-wait-for-sync \
@@ -217,7 +223,6 @@ echo "INFO: Tweaking off host kernel booting"
 gnt-instance modify -H kernel_path="" "${target_name}"
 
 echo "INFO: All done, should come back soon"
-
 
 echo "INFO: Updating access controls"
 /root/bin/sync-auth-keys.sh > /dev/null
