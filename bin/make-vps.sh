@@ -33,7 +33,7 @@ USAGE
 }
 
 declare -i OPTIND=1 help=0 shares=1 extra_disk=0 add_only=0
-declare opt="" optarg="" target_name="" ostype="debootstrap+default" node1=""
+declare opt="" optarg="" target_name="" ostype="debootstrap+xenial" node1=""
 while getopts 'ad:hn:o:p:s:' opt ; do
   case ${opt} in
     a) add_only=1 ;;
@@ -92,13 +92,13 @@ fi
 
 test_ssh_keyfile "${target_keyfile}" || exit 1
 
-if [[ "${shares}" -lt 1 -a "${shares}" -gt 8 ]] ; then
+if [[ "${shares}" -lt 1 && "${shares}" -gt 8 ]] ; then
   echo "ERROR: Invalid number of shares: ${shares}"
   usage
   exit 1
 fi
 
-if [ "${extra_disk}" -lt 0 -a "${extra_disk}" -gt 8 ] ; then
+if [[ "${extra_disk}" -lt 0 && "${extra_disk}" -gt 8 ]] ; then
   echo "ERROR: Invalid number of extra disk shares: ${extra_disk}"
   usage
   exit 1
