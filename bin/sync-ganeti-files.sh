@@ -15,11 +15,11 @@ file_list="/etc/hosts /etc/sudoers /etc/default/ganeti-instance-debootstrap /etc
 for node in ${node_list} ; do
   if [ "${node}" != "${me}" ] ; then
     for dir in ${dir_list} ; do
-      echo "${node}: syncing ${dir}"
+      echo "${node}: syncing dir ${dir}"
       rsync -a --delete "${dir}" "root@${node}:${dir}"
     done
     for file in ${file_list} ; do
-      echo "${node}: syncing ${file}"
+      echo "${node}: syncing file ${file}"
       scp -q "${file}" "root@${node}:${file}"
     done
   else
