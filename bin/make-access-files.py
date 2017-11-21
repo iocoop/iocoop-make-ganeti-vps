@@ -13,7 +13,7 @@ import base64
 user_instances = {}
 auth_users = {}
 
-auth_template = 'no-agent-forwarding,no-port-forwarding,no-user-rc,no-X11-forwarding,'
+auth_template = 'no-agent-forwarding,no-user-rc,no-X11-forwarding,'
 keydir = '/root/make-vps/keys/'
 outdir = '/root/vps/'
 
