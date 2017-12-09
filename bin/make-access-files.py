@@ -107,9 +107,12 @@ for filename in instance_list:
   try:
     with open(keydir+filename, 'r') as keyfile:
       for line in keyfile:
+        if line.rstrip('\n') == '':
+          continue
         keyline = line.rstrip('\n').split(' ')
         if len(keyline) < 3:
-          pass # non conforming line
+          print 'Non conforming line in %s : "%s"' % (keydir+filename, line)
+          continue # non conforming line
         elif not keyline[2] in auth_users:
           auth_users[keyline[2]] = { 'sshkey': (keyline[0], keyline[1]) }
         else:
