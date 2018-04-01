@@ -10,7 +10,7 @@ node_list="$(get_nodes | xargs)"
 me=$(hostname -f)
 
 dir_list="/etc/ganeti/ /root/make-vps/ /root/debs/ /home/vmconsole/.ssh/ /var/cache/ganeti-instance-image/ /home/iso/"
-file_list="/etc/hosts /etc/sudoers /etc/default/ganeti-instance-debootstrap /etc/default/ganeti-instance-image"
+file_list="/etc/hosts /etc/sudoers /etc/default/ganeti-instance-debootstrap /etc/default/ganeti-instance-image /etc/make-vps.json"
 
 for node in ${node_list} ; do
   if [ "${node}" != "${me}" ] ; then
