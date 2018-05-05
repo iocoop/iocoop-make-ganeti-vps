@@ -126,11 +126,18 @@ cp -v "${SRC}/keys/${target_name}" "${target}/root/.ssh/authorized_keys"
 # Disable password authentication for the host
 #echo "PasswordAuthentication no" >> "${target}/etc/ssh/sshd_config"
 
-# Setup the IP address based on a template
+# Setup the IP address based on an interfaces template.
 if [ -f "${ostype_source}/interfaces.TEMPLATE" ] ; then
   sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK/${target_netmask}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
     "${ostype_source}/interfaces.TEMPLATE" \
     > "${target}/etc/network/interfaces"
+fi
+
+# Setup the IP address based on a netplan template.
+if [ -f "${ostype_source}/netplan.TEMPLATE" ] ; then
+  sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK_NUMBER/${target_netmask_number}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
+    "${ostype_source}/netplan.TEMPLATE" \
+    > "${target}/etc/netplan/ens5.yaml"
 fi
 
 # Fix the /etc/hosts file
