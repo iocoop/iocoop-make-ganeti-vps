@@ -39,18 +39,22 @@ vlan_info() {
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
         vlan="virbr1000"
         netmask="255.255.255.240"
+	netmask_number="28"
         gateway="204.246.122.14"
       elif [ "${host}" -ge 17 -a "${host}" -le 29 ] ; then
         vlan="virbr1006"
         netmask="255.255.255.240"
+	netmask_number="28"
         gateway="204.246.122.30"
       elif [ "${host}" -ge 65 -a "${host}" -le 125 ] ; then
         vlan="virbr1004"
         netmask="255.255.255.192"
+	netmask_number="26"
         gateway="204.246.122.126"
       elif [ "${host}" -ge 129 -a "${host}" -le 189 ] ; then
         vlan="virbr1007"
         netmask="255.255.255.192"
+	netmask_number="26"
         gateway="204.246.122.190"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
@@ -62,10 +66,12 @@ vlan_info() {
       if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
         vlan="virbr3001"
         netmask="255.255.255.128"
+	netmask_number="25"
         gateway="216.252.162.126"
       elif [ "${host}" -ge 177 -a "${host}" -le 253 ] ; then
         vlan="virbr3005"
         netmask="255.255.255.192"
+	netmask_number="26"
         gateway="216.252.162.254"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
@@ -78,6 +84,7 @@ vlan_info() {
   esac
   echo "target_vlan='${vlan}'"
   echo "target_netmask='${netmask}'"
+  echo "target_netmask_number='${netmask_number}'"
   echo "target_gateway='${gateway}'"
 }
 

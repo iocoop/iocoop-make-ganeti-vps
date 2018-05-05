@@ -142,7 +142,7 @@ Shares: ${shares}
   * Disk ${disk_total}G
 Target IP: ${target_ip}
 Target vlan: ${target_vlan}
-Target netmask: ${target_netmask}
+Target netmask: ${target_netmask} (/${target_netmask_number})
 Target gateway: ${target_gateway}
 Target OS: ${ostype}
 NODEINFO
