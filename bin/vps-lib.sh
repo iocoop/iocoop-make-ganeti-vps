@@ -36,6 +36,7 @@ vlan_info() {
   case ${subnet} in
     # MSP01
     204.246.122)
+      expected_api_host="g0-cluster.iocoop.org"
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
         vlan="virbr1000"
         netmask="255.255.255.240"
@@ -63,6 +64,7 @@ vlan_info() {
     ;;
     # SCL01
     216.252.162)
+      expected_api_host="g1-cluster.iocoop.org"
       if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
         vlan="virbr3001"
         netmask="255.255.255.128"
@@ -82,6 +84,11 @@ vlan_info() {
        return 1
     ;;
   esac
+  if [[ "${API_HOST}" == "${API_HOST#${expected_api_host}}" ]] ; then
+    echo "ERROR: Wrong VPS IP address for this cluster. ${ip} is in VLAN ${vlan} which doesn't exist in ${expected_api_host}"
+    return 1
+  fi
+
   echo "target_vlan='${vlan}'"
   echo "target_netmask='${netmask}'"
   echo "target_netmask_number='${netmask_number}'"
