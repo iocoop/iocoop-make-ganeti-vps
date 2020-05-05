@@ -84,6 +84,11 @@ if [[ $? -ne 0 ]] ; then
   exit 1
 fi
 
+if [[ "${target_vlan:5:1}" == "3" && "${API_HOST:0:2}" == "g0" ]] || [[ "${target_vlan:5:1}" == "1" && "${API_HOST:0:2}" == "g1" ]] ; then
+  echo "ERROR: Wrong VPS IP address for this cluster. ${target_ip} is in VLAN ${target_vlan} which doesn't exist in ${API_HOST}"
+  exit 1
+fi
+
 target_keyfile="${SRC}/keys/${target_name}"
 if [[ ! -f "${target_keyfile}" ]] ; then
   echo "ERROR: Invalid target ssh keyfile ${target_keyfile}"
