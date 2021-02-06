@@ -1,0 +1,21 @@
+## Debian Buster sources.list
+
+## Debian security updates:
+deb http://security.debian.org/ bullseye/updates main contrib non-free
+deb-src http://security.debian.org/ bullseye/updates main contrib non-free
+
+## Debian.org:
+deb http://ftp.us.debian.org/debian/ bullseye main contrib non-free
+deb-src http://ftp.us.debian.org/debian/ bullseye main contrib non-free
+
+## Updates
+deb http://ftp.us.debian.org/debian/ bullseye-updates main contrib non-free
+deb-src http://ftp.us.debian.org/debian/ bullseye-updates main contrib non-free
+
+## Backports
+deb http://ftp.us.debian.org/debian/ bullseye-backports main contrib non-free
+
+## Proposed updates
+#deb http://ftp.us.debian.org/debian/ bullseye-proposed-updates main contrib non-free
+#deb-src http://ftp.us.debian.org/debian/ bullseye-proposed-updates main contrib non-free
+
