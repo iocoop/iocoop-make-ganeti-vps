@@ -55,8 +55,7 @@ echo "PasswordAuthentication no" >> "/etc/ssh/sshd_config"
 
 # Preseed answers for grub-pc
 debconf-set-selections << 'GRUBPC'
-grub-pc grub2/linux_cmdline_default string
-grub-pc grub2/linux_cmdline string console=tty1 console=ttyS0,38400n8
+grub-pc grub2/linux_cmdline_default string console=tty1 console=ttyS0,115200n8
 grub-pc grub-pc/install_devices string /dev/vda
 GRUBPC
 
@@ -71,12 +70,16 @@ apt-get -y install unattended-upgrades
 
 # Configure for serial console
 cat >> /etc/default/grub << 'GRUBDEFAULT'
-GRUB_TERMINAL=serial
-GRUB_SERIAL_COMMAND="serial --speed=38400 --unit=0 --word=8 --parity=no --stop=1"
+GRUB_TERMINAL="console serial"
+GRUB_SERIAL_COMMAND="serial --speed=115200"
 GRUBDEFAULT
 
 # Install a shiny linux image
 apt-get -y install "${KERNEL_PACKAGE}"
+
+# Make sure Grub is configured correctly.
+/usr/sbin/update-grub
+/usr/sbin/grub-install /dev/vda
 
 # Enable virtio random module
 echo "virtio-rng" >> "${target}/etc/modules"
