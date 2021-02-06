@@ -33,7 +33,7 @@ USAGE
 }
 
 declare -i OPTIND=1 help=0 shares=1 extra_disk=0 add_only=0
-declare opt="" optarg="" target_name="" ostype="debootstrap+xenial" node1=""
+declare opt="" optarg="" target_name="" ostype="debootstrap+focal" node1=""
 while getopts 'ad:hn:o:p:s:' opt ; do
   case ${opt} in
     a) add_only=1 ;;
