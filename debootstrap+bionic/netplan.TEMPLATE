@@ -5,7 +5,7 @@ network:
  version: 2
  renderer: networkd
  ethernets:
-   ens5:
+   eth0:
      dhcp4: no
      dhcp6: no
      addresses: [TARGET_ADDRESS/TARGET_NETMASK_NUMBER]

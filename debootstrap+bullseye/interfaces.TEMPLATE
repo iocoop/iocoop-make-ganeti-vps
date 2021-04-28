@@ -6,8 +6,8 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-auto ens5
-iface ens5 inet static
+auto eth0
+iface eth0 inet static
   address TARGET_ADDRESS
   netmask TARGET_NETMASK
   gateway TARGET_GATEWAY 
