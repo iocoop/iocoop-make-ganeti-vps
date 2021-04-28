@@ -137,7 +137,7 @@ fi
 if [ -f "${ostype_source}/netplan.TEMPLATE" ] ; then
   sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK_NUMBER/${target_netmask_number}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
     "${ostype_source}/netplan.TEMPLATE" \
-    > "${target}/etc/netplan/ens5.yaml"
+    > "${target}/etc/netplan/eth0.yaml"
 fi
 
 # Fix the /etc/hosts file
