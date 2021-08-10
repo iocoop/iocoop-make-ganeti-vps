@@ -55,7 +55,7 @@ echo "PasswordAuthentication no" >> "/etc/ssh/sshd_config"
 
 # Preseed answers for grub-pc
 debconf-set-selections << 'GRUBPC'
-grub-pc grub2/linux_cmdline_default string console=tty1 console=ttyS0,115200n8
+grub-pc grub2/linux_cmdline_default string console=tty1 console=ttyS0,115200n8 net.ifnames=0
 grub-pc grub-pc/install_devices string /dev/vda
 GRUBPC
 
