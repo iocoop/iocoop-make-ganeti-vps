@@ -126,16 +126,25 @@ cp -v "${SRC}/keys/${target_name}" "${target}/root/.ssh/authorized_keys"
 # Disable password authentication for the host
 #echo "PasswordAuthentication no" >> "${target}/etc/ssh/sshd_config"
 
+target_ip_sed='
+  s/TARGET_ADDRESS/${target_ip}/ ;
+  s/TARGET_NETMASK/${target_netmask}/ ;
+  s/TARGET_NETMASK_NUMBER/${target_netmask_number}/ ;
+  s/TARGET_GATEWAY/${target_gateway}/ ;
+  s/TARGET_V6_ADDRESS/${target_v6_ip}/ ;
+  s/TARGET_V6_GATEWAY/${target_v6_gateway}/"
+'
+
 # Setup the IP address based on an interfaces template.
 if [ -f "${ostype_source}/interfaces.TEMPLATE" ] ; then
-  sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK/${target_netmask}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
+  sed "${target_ip_sed}" \
     "${ostype_source}/interfaces.TEMPLATE" \
     > "${target}/etc/network/interfaces"
 fi
 
 # Setup the IP address based on a netplan template.
 if [ -f "${ostype_source}/netplan.TEMPLATE" ] ; then
-  sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK_NUMBER/${target_netmask_number}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
+  sed "${target_ip_sed}" \
     "${ostype_source}/netplan.TEMPLATE" \
     > "${target}/etc/netplan/eth0.yaml"
 fi

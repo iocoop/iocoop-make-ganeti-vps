@@ -40,23 +40,27 @@ vlan_info() {
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
         vlan="virbr1000"
         netmask="255.255.255.240"
-	netmask_number="28"
+        netmask_number="28"
         gateway="204.246.122.14"
+        v6_subnet="2602:ff06:677:0"
       elif [ "${host}" -ge 17 -a "${host}" -le 29 ] ; then
         vlan="virbr1006"
         netmask="255.255.255.240"
-	netmask_number="28"
+        netmask_number="28"
         gateway="204.246.122.30"
+        v6_subnet="2602:ff06:677:6"
       elif [ "${host}" -ge 65 -a "${host}" -le 125 ] ; then
         vlan="virbr1004"
         netmask="255.255.255.192"
-	netmask_number="26"
+        netmask_number="26"
         gateway="204.246.122.126"
+        v6_subnet="2602:ff06:677:4"
       elif [ "${host}" -ge 129 -a "${host}" -le 189 ] ; then
         vlan="virbr1007"
         netmask="255.255.255.192"
-	netmask_number="26"
+        netmask_number="26"
         gateway="204.246.122.190"
+        v6_subnet="2602:ff06:677:7"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
         return 1
@@ -68,13 +72,15 @@ vlan_info() {
       if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
         vlan="virbr3001"
         netmask="255.255.255.128"
-	netmask_number="25"
+        netmask_number="25"
         gateway="216.252.162.126"
+        v6_subnet="2602:ff06:725:1"
       elif [ "${host}" -ge 177 -a "${host}" -le 253 ] ; then
         vlan="virbr3005"
         netmask="255.255.255.192"
-	netmask_number="26"
+        netmask_number="26"
         gateway="216.252.162.254"
+        v6_subnet="2602:ff06:725:5"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
         return 1
@@ -89,10 +95,17 @@ vlan_info() {
     return 1
   fi
 
+  # Calculate IPv6 info from target.
+  target_v6_octet="$(printf "%x" $(echo "${target_ip}" | cut -f4 -d.))"
+  target_v6_ip="${target_v6_subnet}:${target_v6_octet}::1"
+  target_v6_gateway="${target_v6_subnet}::1"
+
   echo "target_vlan='${vlan}'"
   echo "target_netmask='${netmask}'"
   echo "target_netmask_number='${netmask_number}'"
   echo "target_gateway='${gateway}'"
+  echo "target_v6_ip='${target_v6_ip}'"
+  echo "target_v6_gateway='${target_v6_gateway}'"
 }
 
 test_ssh_keyfile() {

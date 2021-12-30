@@ -140,10 +140,10 @@ Instance name: ${target_name}
 Shares: ${shares}
   * Ram ${ram_total}G
   * Disk ${disk_total}G
-Target IP: ${target_ip}
+Target IP: ${target_ip} / ${target_v6_ip}
 Target vlan: ${target_vlan}
 Target netmask: ${target_netmask} (/${target_netmask_number})
-Target gateway: ${target_gateway}
+Target gateway: ${target_gateway} / ${target_v6_gateway}
 Target OS: ${ostype}
 NODEINFO
 

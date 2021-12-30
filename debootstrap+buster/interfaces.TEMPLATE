@@ -13,3 +13,7 @@ iface eth0 inet static
   gateway TARGET_GATEWAY 
   dns-nameservers 8.8.8.8
 
+iface eth0 inet6 static
+  address TARGET_V6_ADDRESS
+  netmask 64
+  gateway TARGET_V6_GATEWAY
