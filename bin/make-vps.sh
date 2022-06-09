@@ -5,6 +5,9 @@
 # Create cernio VPS machines
 
 source "$(dirname $0)/vps-lib.sh"
+if ! check_for_bins; then
+  exit 1
+fi
 
 # Default sizes for shares
 SHARE_RAM_SIZE=1

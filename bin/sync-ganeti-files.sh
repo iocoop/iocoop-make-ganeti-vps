@@ -5,6 +5,9 @@
 # Sync a bunch of stuff to the ganeti nodes.
 
 source /root/make-vps/bin/vps-lib.sh
+if ! check_for_bins; then
+  exit 1
+fi
 
 node_list="$(get_nodes | xargs)"
 me=$(hostname -f)

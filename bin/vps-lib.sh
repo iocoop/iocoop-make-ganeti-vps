@@ -4,7 +4,7 @@
 #
 # Tweak VPS after creation
 
-# Where to get patchs/files from
+# Where to get patches/files from
 SRC="/root/make-vps"
 
 json_read() {
@@ -108,6 +108,16 @@ test_ssh_keyfile() {
       return 1
     fi
   done < "${file}"
+}
+
+check_for_bins() {
+  type curl >/dev/null 2>&1 || ( echo "ERROR: curl binary is missing" && return 1 )
+  type python >/dev/null 2>&1 || ( echo "ERROR: python binary is missing" && return 1 )
+  type gnt-node >/dev/null 2>&1 || ( echo "ERROR: gnt-node binary is missing" && return 1 )
+  type sed >/dev/null 2>&1 || ( echo "ERROR: sed binary is missing" && return 1 )
+  type cut >/dev/null 2>&1 || ( echo "ERROR: cut binary is missing" && return 1 )
+  type "${SRC}/bin/test-ssh-key.py" >/dev/null 2>&1 || ( echo "ERROR: ${SRC}/bin/test-ssh-key.py binary is missing" && return 1 )
+  return 0
 }
 
 # URL to get to the API
