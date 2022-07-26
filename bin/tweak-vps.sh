@@ -5,6 +5,9 @@
 # Tweak VPS after creation
 
 source /root/make-vps/bin/vps-lib.sh
+if ! check_for_bins; then
+  exit 1
+fi
 
 usage() {
   cat << USAGE
