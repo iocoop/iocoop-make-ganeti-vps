@@ -15,9 +15,9 @@ json_read() {
 
 get_instance_info() {
   target_name="$1"
-  tmpfile=$(mktemp)
-  curl -s -k "${API_URL}/instances/${target_name}" > "${tmpfile}"
+  tmpfile="$(mktemp)"
   echo "${tmpfile}"
+  curl --silent --insecure --fail "${API_URL}/instances/${target_name}" > "${tmpfile}"
 }
 
 get_nodes() {
