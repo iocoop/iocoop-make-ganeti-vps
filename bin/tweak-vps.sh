@@ -52,8 +52,26 @@ if [ ! -f "${target_keyfile}" ] ; then
   exit 1
 fi
 
+cleanup() {
+  rm --force -- "$instance_info"
+  umount "${target}"
+  rmdir --verbose "${target}"
+}
+
+# Make a directory to modify the target
+mkdir -p /mnt/make-vps
+target=$(mktemp -d /mnt/make-vps/target_XXXXXXX)
+
 echo "INFO: Getting instance info from API"
 instance_info=$(get_instance_info "${target_name}")
+curl_result=$?
+
+trap '{ cleanup; }' EXIT
+
+if [ "$curl_result" != "0" ]; then
+  echo "ERROR: Fetching instance info failed: ${instance_info}"
+  exit 1
+fi
 
 ostype=$(json_read "${instance_info}" "os")
 
@@ -76,10 +94,6 @@ echo "Instance name: ${target_name}"
 echo "Target IP: ${target_ip}"
 echo "Target OS: ${ostype}"
 echo "Primary Node: ${node1}"
-
-# Make a directory to modify the target
-mkdir -p /mnt/make-vps
-target=$(mktemp -d /mnt/make-vps/target_XXXXXXX)
 
 # Mount the target disk
 instance_disk="/var/run/ganeti/instance-disks/${target_name}:0"
@@ -154,7 +168,4 @@ echo "nameserver 8.8.8.8" > "${target}/etc/resolv.conf"
 #rm -v ${target}/etc/ssh/ssh_host_*_{key,key.pub}
 
 # Cleanup
-umount "${target}"
 kpartx -dv "${instance_disk}"
-rm -v "${instance_info}"
-rmdir -v "${target}"
