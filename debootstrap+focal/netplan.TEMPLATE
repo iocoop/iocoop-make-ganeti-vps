@@ -8,7 +8,10 @@ network:
    eth0:
      dhcp4: no
      dhcp6: no
-     addresses: [TARGET_ADDRESS/TARGET_NETMASK_NUMBER]
+     addresses:
+       - TARGET_ADDRESS/TARGET_NETMASK_NUMBER
+       - TARGET_V6_ADDRESS/64
      gateway4: TARGET_GATEWAY
+     gateway6: TARGET_V6_GATEWAY
      nameservers:
        addresses: [8.8.8.8,8.8.4.4]
