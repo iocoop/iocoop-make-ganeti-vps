@@ -155,6 +155,15 @@ if [ -n "${node1}" ]; then
   echo "Secondary Node: ${node2}"
 fi
 
+if [[ -z "${node1}" ]]; then
+  node1="$(gnt-instance list --no-headers -o pnode "${target_name}")"
+fi
+
+if ! ssh "root@${node1}" "/bin/true"; then
+  echo "Unable to reach ${node1} via SSH"
+  exit 1
+fi
+
 read -p "Create VPS (y/n)?"
 [ "$REPLY" == "y" ] || exit
 
@@ -202,11 +211,7 @@ if [ "${add_only}" -ne 0 ] ; then
   exit
 fi
 
-if [[ -z "${node1}" ]]; then
-  node1="$(gnt-instance list --no-headers -o pnode "${target_name}")"
-fi
-
-ssh "root@${node1}" "/root/bin/tweak-vps.sh -n ${target_name}" 
+ssh "root@${node1}" "/root/bin/tweak-vps.sh -n ${target_name}"
 
 if [[ $? -ne 0 ]] ; then
   echo "ERROR: Failed to tweak"
