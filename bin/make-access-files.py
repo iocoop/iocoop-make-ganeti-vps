@@ -104,6 +104,7 @@ for filename in instance_list:
   instance_info = json.loads(GetNode(filename))
   network_port = str(instance_info['network_port'])
   # print " %s:%s" % (filename, network_port)
+  ssh_keys = set()
   try:
     with open(keydir+filename, 'r') as keyfile:
       for line in keyfile:
@@ -115,8 +116,14 @@ for filename in instance_list:
           continue # non conforming line
         elif not keyline[2] in auth_users:
           auth_users[keyline[2]] = { 'sshkey': (keyline[0], keyline[1]) }
+          if keyline[1] in ssh_keys:
+            existing_email_address = next(x for x in auth_users if auth_users[x]['sshkey'][1] == keyline[1])
+            print("Error: The SSH key ...%s is present multiple times. sshd will just use the first one it encounters. "
+                  "%s and %s at least are using the same key" % (keyline[1][-20:], keyline[2], existing_email_address))
+          ssh_keys.add(keyline[1])
         else:
-          print "Warning: already found key for %s" % keyline[2]
+          if keyline[1] != auth_users[keyline[2]]['sshkey'][1]:
+            print "Error: we've already seen a key for user %s and it doesn't match the key in %s" % (keyline[2], filename)
         if not 'ports' in auth_users[keyline[2]]:
           auth_users[keyline[2]]['ports'] = []
         auth_users[keyline[2]]['ports'].append(network_port)
