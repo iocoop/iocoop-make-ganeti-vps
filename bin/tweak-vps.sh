@@ -52,9 +52,15 @@ if [ ! -f "${target_keyfile}" ] ; then
   exit 1
 fi
 
+instance_disk=''
+
 cleanup() {
-  rm --force -- "$instance_info"
-  umount "${target}"
+  rm --force -- "${instance_info}"
+  if [[ -n "${instance_disk}" ]] ; then
+    echo "INFO: Unmapping instance disk '${instance_disk}'"
+    umount "${target}"
+    kpartx -dv "${instance_disk}"
+  fi
   rmdir --verbose "${target}"
 }
 
@@ -137,7 +143,8 @@ if [ -f "${ostype_source}/sources.list" ] ; then
 fi
 
 # Create the root authorized_keys file
-mkdir -v -m "0700" "${target}/root/.ssh"
+echo 'INFO: Configuring authorized_keys'
+mkdir -p -v -m "0700" "${target}/root/.ssh"
 cp -v "${SRC}/keys/${target_name}" "${target}/root/.ssh/authorized_keys"
 
 # Disable password authentication for the host
@@ -145,6 +152,7 @@ cp -v "${SRC}/keys/${target_name}" "${target}/root/.ssh/authorized_keys"
 
 # Setup the IP address based on an interfaces template.
 if [ -f "${ostype_source}/interfaces.TEMPLATE" ] ; then
+  echo 'INFO: Templating /etc/network/interfaces'
   sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK/${target_netmask}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
     "${ostype_source}/interfaces.TEMPLATE" \
     > "${target}/etc/network/interfaces"
@@ -152,20 +160,22 @@ fi
 
 # Setup the IP address based on a netplan template.
 if [ -f "${ostype_source}/netplan.TEMPLATE" ] ; then
+  echo 'INFO: Templating /etc/netplan/eth0.yaml'
   sed "s/TARGET_ADDRESS/${target_ip}/ ; s/TARGET_NETMASK_NUMBER/${target_netmask_number}/ ; s/TARGET_GATEWAY/${target_gateway}/" \
     "${ostype_source}/netplan.TEMPLATE" \
     > "${target}/etc/netplan/eth0.yaml"
 fi
 
 # Fix the /etc/hosts file
+echo 'INFO: Templating /etc/hosts'
 sed "s/TARGET_NAME/${target_name}/" "${all_source}/hosts.TEMPLATE" \
   > "${target}/etc/hosts"
 
 # Fix /etc/resolf.conf
+echo 'INFO: Setting up basic /etc/resolv.conf'
 echo "nameserver 8.8.8.8" > "${target}/etc/resolv.conf"
 
 # Clear the ssh host keys, they may come from a cached install and be unsafe.
 #rm -v ${target}/etc/ssh/ssh_host_*_{key,key.pub}
 
-# Cleanup
-kpartx -dv "${instance_disk}"
+echo 'INFO: Done'
