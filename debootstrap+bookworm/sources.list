@@ -1,0 +1,20 @@
+## Debian bookworm sources.list
+
+## Debian security updates:
+deb http://deb.debian.org/debian-security bookworm-security main contrib non-free
+deb-src http://deb.debian.org/debian-security bookworm-security main contrib non-free
+
+## Debian.org:
+deb http://deb.debian.org/debian/ bookworm main contrib non-free
+deb-src http://deb.debian.org/debian/ bookworm main contrib non-free
+
+## Updates
+deb http://deb.debian.org/debian/ bookworm-updates main contrib non-free
+deb-src http://deb.debian.org/debian/ bookworm-updates main contrib non-free
+
+## Backports
+deb http://deb.debian.org/debian/ bookworm-backports main contrib non-free
+
+## Proposed updates
+#deb http://deb.debian.org/debian/ bookworm-proposed-updates main contrib non-free
+#deb-src http://deb.debian.org/debian/ bookworm-proposed-updates main contrib non-free
