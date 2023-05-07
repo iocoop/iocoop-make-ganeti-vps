@@ -13,6 +13,8 @@ fi
 SHARE_RAM_SIZE=1
 SHARE_DISK_SIZE=25
 
+MAX_CPU_COUNT=8
+
 # Get a list of available OS images from ganeti
 os_list=$(gnt-os list | tail -n+2 | xargs)
 
@@ -190,16 +192,14 @@ else
   exit 1
 fi
 
-if [ "${shares}" -ge 7 ] ; then
-  echo "INFO: Adding 4 CPUs"
-  gnt-instance modify -B vcpus=4 "${target_name}"
-elif [ "${shares}" -ge 5 ] ; then
-  echo "INFO: Adding 3 CPUs"
-  gnt-instance modify -B vcpus=3 "${target_name}"
-elif [ "${shares}" -ge 3 ] ; then
-  echo "INFO: Adding 2 CPUs"
-  gnt-instance modify -B vcpus=2 "${target_name}"
+cpu_count=$(calculate_cpu_count $shares)
+if [ "${cpu_count}" -gt "${MAX_CPU_COUNT}" ]; then
+  echo "WARNING: Clamping CPU count to max of ${MAX_CPU_COUNT}"
+  cpu_count="${MAX_CPU_COUNT}"
 fi
+
+echo "INFO: Adding ${cpu_count} CPUs"
+gnt-instance modify -B vcpus=${cpu_count} "${target_name}"
 
 echo "INFO: Activating disks"
 
