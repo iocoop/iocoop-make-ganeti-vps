@@ -13,6 +13,12 @@ json_read() {
   python -c "import json; import sys; print json.loads(sys.stdin.read())['${var}']" < "${file}"
 }
 
+calculate_cpu_count() {
+  local shares
+  shares="$1"
+  echo $(( (shares + 1) /2 ))
+}
+
 get_instance_info() {
   target_name="$1"
   tmpfile="$(mktemp)"
