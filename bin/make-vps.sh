@@ -122,7 +122,8 @@ if [[ -z "${ostype}" ]] ; then
   exit 1
 fi
 
-if [[ "$(json_read /etc/make-vps.json balance_on_free_space)" = "true" ]] ; then
+# The value compared here is "True" not "true" because this is a Python variable not JSON
+if [[ "$(json_read /etc/make-vps.json balance_on_free_space)" = "True" ]] ; then
   if [[ -z "${node1}" ]] ; then
     node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
   fi
