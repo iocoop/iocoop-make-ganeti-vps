@@ -42,7 +42,7 @@ vlan_info() {
   case ${subnet} in
     # MSP01
     204.246.122)
-      expected_api_host="g0-cluster.iocoop.org"
+      expected_api_host="g0.iocoop.org"
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
         vlan="virbr1000"
         netmask="255.255.255.240"
