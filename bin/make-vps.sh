@@ -122,7 +122,9 @@ if [[ -z "${ostype}" ]] ; then
   exit 1
 fi
 
-if [[ "$(json_read /etc/make-vps.json balance_on_free_space)" = "true" ]] ; then
+# The json_read returns "True" not "true" because the function returns a a Python variable not a JSON variable.
+# Here we convert the value to all lower case to avoid issues related to case
+if [[ "$(json_read /etc/make-vps.json balance_on_free_space | tr '[:upper:]' '[:lower:]')" = "true" ]] ; then
   if [[ -z "${node1}" ]] ; then
     node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
   fi
