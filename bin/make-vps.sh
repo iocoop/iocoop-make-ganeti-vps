@@ -124,8 +124,8 @@ while [[ -z "${shares}" || "${shares}" -lt 1 || "${shares}" -gt 8 ]] ; do
   read -p "Enter the number of shares to allocate to the VPS (1-8): " shares
 done
 
-if [[ -z "${extra_disk}" || "${extra_disk}" -lt 0 || "${extra_disk}" -gt 8 || "${extra_disk}" -gt "${shares}" ]] ; then
-  read -p "Enter the number of extra disk shares (${SHARE_DISK_SIZE}GB each) to allocate to the VPS (0-${shares}): " extra_disk
+if [[ -z "${extra_disk}" || "${extra_disk}" -lt 0 || "${extra_disk}" -gt 8 ]] ; then
+  read -p "Enter the number of extra disk shares (${SHARE_DISK_SIZE}GB each) to allocate to the VPS (0-8): " extra_disk
 fi
 
 ostype=$(echo ${os_list} | fmt -1 | awk -v "os=${ostype}" '$1 == os')
