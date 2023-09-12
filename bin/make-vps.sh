@@ -27,27 +27,35 @@ fi
 
 usage() {
   cat << USAGE
-usage $(basename $0) -h [-a] -n <hostname> -s <size> -o <ostype> [-d <extra_disk_shares>]
+usage $(basename $0) -h [-a] -n <hostname> -s <size> -o <ostype> -d <extra_disk_shares>
   -a    Add only, don't startup and tweak
-  -d    Optional: Extra disk shares of size ${SHARE_DISK_SIZE}G
+  -d    Extra disk shares of size ${SHARE_DISK_SIZE}G
   -n    The hostname for the instance (must resolve)
+  -i    IP address
   -o    OS Type (${os_list})
   -p    Primary Node (${node_list})
   -s    Number of shares (1-8) ${SHARE_RAM_SIZE}G ram / ${SHARE_DISK_SIZE}G disk
+  -f    Freshbooks recurring profile ID
+  -e    Email address of the user (as recorded in the IP address Google Sheet)
+  -k    SSH key string (e.g. "ssh-rsa AAAA..... user@example.com")
 USAGE
 }
 
-declare -i OPTIND=1 help=0 shares=1 extra_disk=0 add_only=0
-declare opt="" optarg="" target_name="" ostype="debootstrap+focal" node1=""
-while getopts 'ad:hn:o:p:s:' opt ; do
+declare -i OPTIND=1 help=0 add_only=0
+declare opt="" optarg="" target_name="" ostype="" node1=""
+while getopts 'ad:hn:i:o:p:s:f:e:k:' opt ; do
   case ${opt} in
     a) add_only=1 ;;
     d) extra_disk="${OPTARG}" ;;
     h) help=1 ;;
     n) target_name="${OPTARG}" ;;
+    i) target_ip="${OPTARG}" ;;
     o) ostype="${OPTARG}" ;;
     p) node1="${OPTARG}" ;;
     s) shares="${OPTARG}" ;;
+    f) freshbooks_id="${OPTARG}" ;;
+    e) email="${OPTARG}" ;;
+    k) key_content="${OPTARG}" ;;
     *)
       echo "ERROR: unrecognized flag '${opt}'"
       ${script} -h
@@ -62,21 +70,32 @@ if [[ "${help}" -eq 1 ]] ; then
   exit
 fi
 
-if [[ -z "${target_name}" ]] ; then
-  usage
-  exit 1
-fi
- 
-target_test=$(gnt-instance list "${target_name}" 2> /dev/null | tail -n+2 | awk '{print $1}')
-if [[ -n "${target_test}" ]] ; then
-  echo "ERROR: '${target_name}' already exists"
-  usage
-  exit 1
-fi
+while [[ -z "${target_name}" ]] ; do
+  read -p "Enter the VPS hostname to create: " target_name
+  target_test=$(gnt-instance list "${target_name}" 2> /dev/null | tail -n+2 | awk '{print $1}')
+  if [[ -n "${target_test}" ]] ; then
+    unset target_name
+    echo "ERROR: '${target_name}' already exists"
+  fi
+done
 
-target_ip=$(getent ahostsv4 "${target_name}" | awk '{print $1}' | head -n1)
+while [[ -z "${target_ip}" ]] ; do
+  read -p "Enter the VPS IP address to use: " target_ip
+  if [[ ! "$target_ip" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
+    echo "ERROR: $target_ip isn't a valid IP address"
+    continue
+  fi
+  if grep $target_ip /etc/hosts; then
+    echo "There is an existing entry for this IP in /etc/hosts."
+    echo "This likely indicates that it previously belonged to a different VPS that was torn down but not cleaned up or that the IP database is out of date."
+    echo "Please remove this IP from /etc/hosts if it is indeed free before continuing"
+    exit 1
+  fi
+done
 
-if [[ -z "${target_ip}" ]] ; then
+echo "$target_ip $target_name" >>/etc/hosts
+
+if [[ -z "$(getent ahostsv4 "${target_name}" | awk '{print $1}' | head -n1)" ]] ; then
   echo "ERROR: Invalid hostname '${target_name}'"
   usage
   exit 1
@@ -91,36 +110,30 @@ fi
 
 target_keyfile="${SRC}/keys/${target_name}"
 if [[ ! -f "${target_keyfile}" ]] ; then
-  echo "ERROR: Invalid target ssh keyfile ${target_keyfile}"
-  exit 1
+  while [[ -z "${key_content}" || -z "${email}" ]]; do
+    read -p "Enter the user's email address that was entered in the IP address Google Sheet: " email
+    read -p "Enter the user's SSH public key: " key_content
+  done
+  key_content="$(echo $key_content | awk '{print $1" "$2}') $email"
+  echo "$key_content" > "$target_keyfile"
 fi
 
 test_ssh_keyfile "${target_keyfile}" || exit 1
 
-if [[ "${shares}" -lt 1 && "${shares}" -gt 8 ]] ; then
-  echo "ERROR: Invalid number of shares: ${shares}"
-  usage
-  exit 1
-fi
+while [[ -z "${shares}" || "${shares}" -lt 1 || "${shares}" -gt 8 ]] ; do
+  read -p "Enter the number of shares to allocate to the VPS (1-8): " shares
+done
 
-if [[ "${extra_disk}" -lt 0 && "${extra_disk}" -gt 8 ]] ; then
-  echo "ERROR: Invalid number of extra disk shares: ${extra_disk}"
-  usage
-  exit 1
-fi
-
-if [[ "${extra_disk}" -gt "${shares}" ]] ; then
-  echo "ERROR: Extra disk shares must be less than or equal to the primary shares"
-  exit 1
+if [[ -z "${extra_disk}" || "${extra_disk}" -lt 0 || "${extra_disk}" -gt 8 ]] ; then
+  read -p "Enter the number of extra disk shares (${SHARE_DISK_SIZE}GB each) to allocate to the VPS (0-8): " extra_disk
 fi
 
 ostype=$(echo ${os_list} | fmt -1 | awk -v "os=${ostype}" '$1 == os')
-
-if [[ -z "${ostype}" ]] ; then
-  echo "ERROR: Invalid ostype"
-  usage
-  exit 1
-fi
+while [[ -z "${ostype}" ]]; do
+  echo "${os_list}"
+  read -p "Enter the OS to install from the list above: " ostype
+  ostype=$(echo ${os_list} | fmt -1 | awk -v "os=${ostype}" '$1 == os')
+done
 
 # The json_read returns "True" not "true" because the function returns a a Python variable not a JSON variable.
 # Here we convert the value to all lower case to avoid issues related to case
@@ -141,6 +154,10 @@ fi
 ram_total=$((shares * SHARE_RAM_SIZE))
 disk_total=$(((extra_disk + shares) * SHARE_DISK_SIZE))
 
+while [[ -z "${freshbooks_id}" ]]; do
+  read -p "Enter the Freshbooks recurring profile ID: " freshbooks_id
+done
+
 cat << NODEINFO
 INFO: Creating vps
 Instance name: ${target_name}
@@ -152,6 +169,7 @@ Target vlan: ${target_vlan}
 Target netmask: ${target_netmask} (/${target_netmask_number})
 Target gateway: ${target_gateway}
 Target OS: ${ostype}
+Freshbooks recurring profile ID: ${freshbooks_id}
 NODEINFO
 
 if [ -n "${node1}" ]; then
@@ -236,3 +254,10 @@ echo "INFO: All done, should come back soon"
 
 echo "INFO: Updating access controls"
 /root/bin/sync-auth-keys.sh > /dev/null
+
+echo "INFO: Tagging ${target_name} with the freshbooks-recurring-profile-id of ${freshbooks_id}"
+gnt-instance add-tags $target_name freshbooks-recurring-profile-id:${freshbooks_id}
+
+echo "While the VPS is provisioned, you can watch the console by running"
+echo "gnt-instance console $target_name"
+echo "The VPS will provision, then power off, briefly entering an ERROR_down state, boot again and eventually drop to a login prompt"
