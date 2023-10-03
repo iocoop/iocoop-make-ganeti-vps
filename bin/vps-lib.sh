@@ -46,22 +46,22 @@ vlan_info() {
       if [ "${host}" -ge 1 -a "${host}" -le 13 ] ; then
         vlan="virbr1000"
         netmask="255.255.255.240"
-	netmask_number="28"
+        netmask_number="28"
         gateway="204.246.122.14"
       elif [ "${host}" -ge 17 -a "${host}" -le 29 ] ; then
         vlan="virbr1006"
         netmask="255.255.255.240"
-	netmask_number="28"
+        netmask_number="28"
         gateway="204.246.122.30"
       elif [ "${host}" -ge 65 -a "${host}" -le 125 ] ; then
         vlan="virbr1004"
         netmask="255.255.255.192"
-	netmask_number="26"
+        netmask_number="26"
         gateway="204.246.122.126"
       elif [ "${host}" -ge 129 -a "${host}" -le 189 ] ; then
         vlan="virbr1007"
         netmask="255.255.255.192"
-	netmask_number="26"
+        netmask_number="26"
         gateway="204.246.122.190"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
@@ -74,12 +74,12 @@ vlan_info() {
       if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
         vlan="virbr3001"
         netmask="255.255.255.128"
-	netmask_number="25"
+        netmask_number="25"
         gateway="216.252.162.126"
       elif [ "${host}" -ge 177 -a "${host}" -le 253 ] ; then
         vlan="virbr3005"
         netmask="255.255.255.192"
-	netmask_number="26"
+        netmask_number="26"
         gateway="216.252.162.254"
       else
         echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
@@ -123,6 +123,25 @@ check_for_bins() {
   type sed >/dev/null 2>&1 || ( echo "ERROR: sed binary is missing" && return 1 )
   type cut >/dev/null 2>&1 || ( echo "ERROR: cut binary is missing" && return 1 )
   type "${SRC}/bin/test-ssh-key.py" >/dev/null 2>&1 || ( echo "ERROR: ${SRC}/bin/test-ssh-key.py binary is missing" && return 1 )
+  return 0
+}
+
+test_hosts_entry() {
+  host_ip="$1"
+  host_name="$2"
+  if [[ $# -ne 2 ]] ; then
+    echo "usage: ${FUNCNAME[0]} <IP> <hostname>"
+    return 1
+  fi
+  while read -r line ; do
+    check_ip=$(awk '{print $1}' <(echo "${line}"))
+    if [[ "${host_ip}" == "${check_ip}" ]] ; then
+      if ! grep -q "${host_name}" <(echo "${line}") ; then
+        echo "ERROR: Found miss-matching host in /etc/hosts: ${line}"
+        return 1
+      fi
+    fi
+  done < /etc/hosts
   return 0
 }
 
