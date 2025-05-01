@@ -1,20 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source /root/make-vps/bin/vps-lib.sh
 if ! check_for_bins; then
   exit 1
 fi
 
-/root/bin/make-access-files.py
+if ! mkdir -p /root/vps ; then
+  echo 'ERROR: Failed to mkdir /root/vps'
+  exit 1
+fi
 
-if [[ $? -ne 0 ]] ; then
+if ! /root/make-vps/bin/make-access-files.py ; then
   echo 'ERROR: Failed to generate access files'
   exit 1
 fi
 
-# Add root's DSA key to the authorized_keys.
-cat /root/.ssh/id_dsa.pub >> /root/vps/authorized_keys
-
 manager="$(json_read /etc/make-vps.json manager)"
-scp /root/vps/attributes.py ${manager}:/home/vps/bin/attributes.py
-scp /root/vps/authorized_keys ${manager}:/home/vps/.ssh/authorized_keys
+scp /root/vps/attributes.py "${manager}:/home/vps/bin/attributes.py"
+scp /root/vps/authorized_keys "${manager}:/home/vps/.ssh/authorized_keys"
