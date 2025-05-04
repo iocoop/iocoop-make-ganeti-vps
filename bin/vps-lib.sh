@@ -10,7 +10,7 @@ SRC="/root/make-vps"
 json_read() {
   file=$1
   var=$2
-  python -c "import json; import sys; print json.loads(sys.stdin.read())['${var}']" < "${file}"
+  jq -r ".${var}" < "${file}"
 }
 
 calculate_cpu_count() {
@@ -118,7 +118,7 @@ test_ssh_keyfile() {
 
 check_for_bins() {
   type curl >/dev/null 2>&1 || ( echo "ERROR: curl binary is missing" && return 1 )
-  type python >/dev/null 2>&1 || ( echo "ERROR: python binary is missing" && return 1 )
+  type jq >/dev/null 2>&1 || ( echo "ERROR: jq binary is missing" && return 1 )
   type gnt-node >/dev/null 2>&1 || ( echo "ERROR: gnt-node binary is missing" && return 1 )
   type sed >/dev/null 2>&1 || ( echo "ERROR: sed binary is missing" && return 1 )
   type cut >/dev/null 2>&1 || ( echo "ERROR: cut binary is missing" && return 1 )
