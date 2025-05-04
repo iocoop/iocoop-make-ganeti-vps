@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # Author: Ben Kochie <ben@nerp.net>
 
@@ -6,9 +6,14 @@ import json
 import os
 import time
 import types
-import urllib2
+import urllib3
 import ssl
 import base64
+from urllib3.exceptions import HTTPError
+from functools import reduce
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+http = urllib3.PoolManager(cert_reqs='CERT_NONE')
 
 user_instances = {}
 auth_users = {}
@@ -23,10 +28,11 @@ defaults = {'keydir': '/root/make-vps/keys/',
             'ganeti_auth': 'user:password'
             }
 with open('/etc/make-vps.json') as f:
-    config = dict(defaults.items() + json.load(f).items())
+    config_file = json.load(f)
 
-# Make sure we base64 encode the password for urllib2
-auth_string = base64.encodestring(config['ganeti_auth']).replace('\n', '')
+config = {**defaults, **config_file}
+
+basic_auth_header = urllib3.make_headers(basic_auth=config['ganeti_auth'])
 
 authorized_keys_file = config['outdir'] + "authorized_keys"
 attributes_py_file = config['outdir'] + "attributes.py"
@@ -39,11 +45,10 @@ def BaseURL():
 
 def GetURL(url):
   """GET request for a URL, returning the response body as a string."""
-  request = urllib2.Request(url)
-  request.add_header("Authorization", "Basic %s" % auth_string)
   try:
-    return urllib2.urlopen(request, context=context).read()
-  except urllib2.HTTPError as error:
+    resp = http.request('GET', url, headers=basic_auth_header)
+    return resp.data
+  except HTTPError as error:
     raise Error(error)
 
 def GetInstanceList():
@@ -100,10 +105,9 @@ def PermitOpen(port):
 instance_list = reduce(GetIdKeys, json.loads(GetInstanceList()), [])
 
 for filename in instance_list:
-  print "Processing file: " + filename
+  print("Processing file: " + filename)
   instance_info = json.loads(GetNode(filename))
   network_port = str(instance_info['network_port'])
-  # print " %s:%s" % (filename, network_port)
   ssh_keys = set()
   try:
     with open(keydir+filename, 'r') as keyfile:
@@ -112,7 +116,7 @@ for filename in instance_list:
           continue
         keyline = line.rstrip('\n').split(' ')
         if len(keyline) < 3:
-          print 'Non conforming line in %s : "%s"' % (keydir+filename, line)
+          print('Non conforming line in %s : "%s"' % (keydir+filename, line))
           continue # non conforming line
         elif not keyline[2] in auth_users:
           auth_users[keyline[2]] = { 'sshkey': (keyline[0], keyline[1]) }
@@ -123,7 +127,7 @@ for filename in instance_list:
           ssh_keys.add(keyline[1])
         else:
           if keyline[1] != auth_users[keyline[2]]['sshkey'][1]:
-            print "Error: we've already seen a key for user %s and it doesn't match the key in %s" % (keyline[2], filename)
+            print("Error: we've already seen a key for user %s and it doesn't match the key in %s" % (keyline[2], filename))
         if not 'ports' in auth_users[keyline[2]]:
           auth_users[keyline[2]]['ports'] = []
         auth_users[keyline[2]]['ports'].append(network_port)
@@ -131,20 +135,20 @@ for filename in instance_list:
           user_instances[keyline[2]] = []
         user_instances[keyline[2]].append(filename)
   except IOError:
-    print "Couldn't find key file (" + keydir + filename + ") for instance " + filename + ". Skipping"
+    print("Couldn't find key file (" + keydir + filename + ") for instance " + filename + ". Skipping")
 
 authkey_file = open(outdir+'authorized_keys', 'w')
 
-print "Writing %s file" % authorized_keys_file
+print("Writing %s file" % authorized_keys_file)
 
-for id,key in auth_users.iteritems():
+for user_id,key in auth_users.items():
   open_ports = ','.join(map(PermitOpen, key['ports']))
-  auth_line = auth_template + open_ports + ',command="exec /home/vps/bin/ganeti_cli.py %s"' % id
-  authkey_file.write(' '.join([auth_line, key['sshkey'][0], key['sshkey'][1], id])+'\n')
+  auth_line = auth_template + open_ports + ',command="exec /home/vps/bin/ganeti_cli.py %s"' % user_id
+  authkey_file.write(' '.join([auth_line, key['sshkey'][0], key['sshkey'][1], user_id])+'\n')
 
 attr_file = open(attributes_py_file, 'w')
 
-print "Writing %s file" % attributes_py_file
+print("Writing %s file" % attributes_py_file)
 
 attr_file.write("""# ACL mapping permissions to domains for various users
 from templates import *
