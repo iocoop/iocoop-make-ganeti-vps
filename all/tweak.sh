@@ -94,3 +94,5 @@ Completed on $(date)
 COMPLETE
 
 logger "Finished first boot package fixes"
+
+rm -- "$0"
