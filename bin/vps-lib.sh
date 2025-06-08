@@ -86,6 +86,18 @@ vlan_info() {
         return 1
       fi
     ;;
+    216.252.163)
+      expected_api_host="g1-cluster.iocoop.org"
+      if [ "${host}" -ge 1 -a "${host}" -le 125 ] ; then
+        vlan="virbr3006"
+        netmask="255.255.255.128"
+        netmask_number="25"
+        gateway="216.252.163.126"
+      else
+        echo "ERROR: Subnet ${subnet} host ${host} has no vlan"
+        return 1
+      fi
+    ;;
     *) echo "ERROR: Subnet ${subnet} not supported"
        return 1
     ;;
