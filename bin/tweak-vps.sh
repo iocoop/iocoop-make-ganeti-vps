@@ -142,6 +142,11 @@ if [ -f "${ostype_source}/sources.list" ] ; then
   cp -v "${ostype_source}/sources.list" "${target}/etc/apt/sources.list"
 fi
 
+# Copy in valid debian.sources file.
+if [ -f "${ostype_source}/debian.sources" ] ; then
+  cp -v "${ostype_source}/debian.sources" "${target}/etc/apt/sources.list.d/debian.sources"
+fi
+
 # Create the root authorized_keys file
 echo 'INFO: Configuring authorized_keys'
 mkdir -p -v -m "0700" "${target}/root/.ssh"
