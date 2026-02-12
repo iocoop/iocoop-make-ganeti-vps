@@ -141,8 +141,7 @@ if [[ "$(json_read /etc/make-vps.json balance_on_free_space | tr '[:upper:]' '[:
   if [[ -z "${node1}" ]] ; then
     node1=$(get_nodes_disk | sort -rn -k2 | head -n1 | awk '{print $1}')
   fi
-  node2=$(get_nodes_disk | sort -rn -k2 | grep -v "${node1}" | head -n1 | awk '{print $1}')
-  gnt_node_assertion="-n ${node1}:${node2}"
+  gnt_node_assertion="-n ${node1}"
 fi
 
 ganeti_disk_type="$(json_read /etc/make-vps.json ganeti_disk_type)"
@@ -173,8 +172,7 @@ Freshbooks recurring profile ID: ${freshbooks_id}
 NODEINFO
 
 if [ -n "${node1}" ]; then
-  echo "Primary Node: ${node1}"
-  echo "Secondary Node: ${node2}"
+  echo "Node: ${node1}"
 fi
 
 if [[ -z "${node1}" ]]; then
